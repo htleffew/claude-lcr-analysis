@@ -1,0 +1,11 @@
+# NLP & Machine Learning Pipeline
+pandas>=2.0
+numpy>=1.24
+scikit-learn>=1.3
+networkx>=3.0
+plotly>=5.10
+matplotlib>=3.7
+seaborn>=0.12
+bertopic>=0.15
+prophet>=1.1
+jupyter>=1.0

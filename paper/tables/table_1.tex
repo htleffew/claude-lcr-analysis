@@ -1,0 +1,21 @@
+\begin{table}[!htbp]
+\centering
+\caption{Pass 1b canonical corpus composition stratified by subreddit and row type.}
+\label{tab:corpus_composition}
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Stratum} & \textbf{Rows (n)} & \textbf{Posts} & \textbf{Comments} & \textbf{R2-tagged} & \textbf{Pre-release} & \textbf{Post-release} \\
+\midrule
+r/ClaudeAI & 15,491 & 576 & 14,915 & 132 & 5,220 & 10,271 \\
+r/claudexplorers & 5,120 & 257 & 4,863 & 149 & 473 & 4,647 \\
+r/ClaudeCode & 3,188 & 230 & 2,958 & 3 & 1,286 & 1,902 \\
+r/Anthropic & 2,359 & 110 & 2,249 & 21 & 1,415 & 944 \\
+Total & 26,158 & 1,173 & 24,985 & 305 & 8,394 & 17,764 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.5em}
+\raggedright
+\textit{Note.} Posts (n=1{,}173) are a seed-term-matched subset of the wholesale August-to-December 2025 Reddit pull; comments (n=24{,}985) are the seed-filtered refetch for those 1{,}173 post IDs. R2-tagged rows match at least one Round 2 augmented seed term (34 retained terms across two functional categories; see Table 3). Pre-release rows are dated before 2025-09-29 (Claude Sonnet 4.5 launch); post-release rows on or after that date.
+\end{table}

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Sonnet Analysis | Portfolio Research</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS, dual mode, no radii, sharp editorial
+   ============================================================ */
+:root {
+  --obsidian:#030303; --charcoal:#161616; --graphite:#222222; --brushed:#333333; --tungsten:#A1A1A6; --platinum:#F5F5F7; --flare:#FFFFFF;
+  --paper:#F5F5F7; --paper-2:#E9E9E9; --paper-3:#DDDDDD; --ink:#030303; --ink-2:#222222; --ink-3:#5E5E5A;
+  --sapphire-deep:#0F52BA; --sapphire:#4D8CFF; --ink-blue:#1A3A6B;
+  --phthalo:#0F3A6B; --phthalo-lift:#3866A0; --alizarin:#7A1626; --hookers:#1A4A38; --hansa:#DBA844; --dioxazine:#3D1F4A;
+  --display:'Playfair Display','Times New Roman',serif; --body:'Lora',Georgia,serif; --mono:'JetBrains Mono','SF Mono',Menlo,monospace;
+  --ease-out:cubic-bezier(0.16,1,0.3,1); --ease-std:cubic-bezier(0.4,0,0.2,1);
+  --col:680px; --col-wide:1080px;
+}
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; border-radius:0 !important; }
+::selection { background:rgba(77,140,255,0.35); color:#fff; }
+html { scroll-behavior:smooth; }
+body { font-family:var(--body); background:var(--obsidian); color:var(--platinum); font-size:18px; line-height:1.78; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+
+.atmosphere { position:fixed; inset:0; z-index:-30; pointer-events:none; transition:background 1.2s var(--ease-std); }
+.band { position:relative; padding:140px 0; transition:background 0.9s var(--ease-std), color 0.9s var(--ease-std); }
+.band--dark  { background:var(--obsidian); color:var(--platinum); }
+.band--paper { background:var(--platinum); color:var(--obsidian); }
+.band--dark + .band--paper, .band--paper + .band--dark { border-top:1px solid rgba(0,0,0,0.0); }
+
+.col { max-width:var(--col); margin:0 auto; padding:0 32px; }
+.col-wide { max-width:var(--col-wide); margin:0 auto; padding:0 48px; }
+
+#progress { position:fixed; top:0; left:0; right:0; height:2px; z-index:200; pointer-events:none; background:transparent; }
+#progress::after { content:''; position:absolute; left:0; top:0; bottom:0; width:var(--p,0%); background:linear-gradient(90deg, var(--sapphire) 0%, var(--sapphire-deep) 100%); transition:width 0.05s linear; }
+
+#topnav { position:fixed; top:0; left:0; right:0; height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 32px; z-index:150; font-family:var(--mono); font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--platinum); background:rgba(3,3,3,0.55); backdrop-filter:blur(14px) saturate(140%); border-bottom:1px solid rgba(255,255,255,0.06); transition:background 0.6s var(--ease-std); }
+#topnav.is-paper { background:rgba(245,245,247,0.82); border-bottom-color:rgba(0,0,0,0.08); color:var(--ink); }
+#topnav .brand { font-family:var(--display); font-size:15px; font-weight:600; letter-spacing:0.04em; text-transform:none; color:inherit; text-decoration:none; }
+#topnav .crumbs { display:flex; gap:18px; align-items:center; }
+#topnav .crumbs a { color:inherit; text-decoration:none; opacity:0.7; transition:opacity .25s; }
+#topnav .sep { opacity:0.35; }
+
+#spine { position:fixed; left:18px; top:50%; transform:translateY(-50%); z-index:130; pointer-events:auto; display:flex; flex-direction:column; gap:14px; padding:18px 14px; background:rgba(3,3,3,0.45); color:var(--platinum); backdrop-filter:blur(14px) saturate(140%); border:1px solid rgba(255,255,255,0.08); transition:background 0.6s var(--ease-std); }
+#spine.is-paper { background:rgba(245,245,247,0.78); border-color:rgba(0,0,0,0.10); color:var(--ink); }
+#spine .row { display:flex; align-items:center; gap:10px; cursor:pointer; }
+#spine .tick { width:16px; height:1px; background:currentColor; opacity:0.35; transition:width .35s var(--ease-out); }
+#spine .row.is-active .tick { width:28px; opacity:1; background:var(--sapphire); }
+#spine .row.is-paper-active .tick { background:var(--ink-blue); }
+#spine .label { font-family:var(--mono); font-size:9.5px; letter-spacing:0.18em; text-transform:uppercase; opacity:0.55; transition:opacity .35s; white-space:nowrap; }
+#spine .row:hover .label, #spine .row.is-active .label { opacity:1; }
+#spine .num { font-family:var(--mono); font-size:9px; opacity:0.4; width:14px; }
+@media (max-width:1180px) { #spine { display:none; } }
+
+.front { min-height:100vh; padding:160px 0 100px; display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden; }
+.front .meta-row { font-family:var(--mono); font-size:11px; letter-spacing:0.30em; text-transform:uppercase; color:var(--tungsten); margin-bottom:40px; display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
+.front .meta-row .sep { opacity:0.4; }
+.front h1 { font-family:var(--display); font-weight:600; font-size:clamp(44px, 5.0vw, 72px); letter-spacing:-0.018em; line-height:1.06; color:var(--flare); margin-bottom:36px; max-width:20ch; }
+.front .abstract { font-family:var(--body); font-style:italic; font-size:22px; line-height:1.62; color:var(--platinum); max-width:60ch; margin-bottom:48px; }
+
+.ambient { position:absolute; right:-12%; top:50%; transform:translateY(-50%); width:64%; max-width:820px; aspect-ratio:1; pointer-events:none; z-index:1; opacity:0; animation:ambient-fade 1.6s 0.6s var(--ease-out) forwards; }
+@keyframes ambient-fade { to { opacity:0.35; } }
+.ambient svg { width:100%; height:100%; display:block; filter:blur(2px); }
+
+.band--paper h2, .band--dark h2 { font-family:var(--display); font-weight:600; font-size:clamp(34px, 3.6vw, 48px); letter-spacing:-0.012em; line-height:1.12; margin:0 auto 28px; max-width:var(--col); padding:0 32px; }
+.band--paper h2 { color:var(--ink); } .band--dark h2 { color:var(--flare); }
+.band--paper .eyebrow, .band--dark .eyebrow { font-family:var(--mono); font-size:10.5px; letter-spacing:0.30em; text-transform:uppercase; margin:0 auto 18px; max-width:var(--col); padding:0 32px; }
+.band--paper .eyebrow { color:var(--ink-blue); } .band--dark .eyebrow { color:var(--sapphire); }
+.band--paper p, .band--dark p { margin:0 auto 22px; max-width:var(--col); padding:0 32px; font-size:18px; line-height:1.78; }
+.band--paper p { color:var(--ink); } .band--dark p { color:var(--platinum); }
+
+.has-dropcap::first-letter { font-family:var(--display); font-weight:600; font-size:5.6em; line-height:0.86; float:left; margin:0.06em 0.10em -0.08em 0; color:var(--sapphire); }
+.band--paper .has-dropcap::first-letter { color:var(--ink-blue); }
+
+/* STAT GRID */
+.stat-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px; max-width:var(--col-wide); margin:64px auto; padding:0 32px; }
+.stat-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:32px 36px; display:flex; flex-direction:column; gap:12px; }
+.band--paper .stat-card { background:#fff; border-color:var(--paper-3); }
+.stat-card .val { font-family:var(--mono); font-size:42px; font-weight:300; letter-spacing:-0.04em; color:var(--flare); line-height:1; }
+.band--paper .stat-card .val { color:var(--ink); }
+.stat-card .lbl { font-family:var(--mono); font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--sapphire); }
+.band--paper .stat-card .lbl { color:var(--ink-blue); }
+.stat-card .diff { font-family:var(--body); font-style:italic; font-size:15px; color:var(--tungsten); line-height: 1.5; }
+.band--paper .stat-card .diff { color:var(--ink-3); }
+
+/* CODE BLOCKS */
+pre { background:var(--obsidian); border:1px solid var(--graphite); padding:24px; margin:48px auto; max-width:var(--col-wide); overflow-x:auto; }
+.band--paper pre { background:var(--ink); border:none; }
+code { font-family:var(--mono); font-size:14px; color:var(--platinum); line-height:1.6; }
+.token.keyword { color:var(--sapphire); }
+.token.comment { color:var(--tungsten); font-style:italic;}
+.token.string { color:var(--hansa); }
+.token.number { color:var(--flare); }
+
+.figure { margin:48px auto; max-width:var(--col-wide); padding:0 32px; }
+.figure .frame { position:relative; background:var(--obsidian); border:1px solid var(--graphite); padding:32px 36px 28px; }
+.band--paper .figure .frame { background:#fff; border-color:var(--paper-3); }
+.chart-container { position:relative; width:100%; height:45vh; max-height:400px; }
+
+.reveal { opacity:0; transform:translateY(18px); transition:opacity .9s var(--ease-out), transform .9s var(--ease-out); }
+.reveal.is-on { opacity:1; transform:none; }
+
+/* ============================================================
+   MASTER GRID & PORTRAIT MODE POLISH
+   ============================================================ */
+:root { --grid-left: max(32px, calc(50vw - 540px)); }
+@media (min-width: 1360px) { :root { --grid-left: max(260px, calc(50vw - 540px)); } }
+
+@media (min-width: 1240px) {
+  section.band:not(.front) {
+    display: grid;
+    grid-template-columns: var(--grid-left) 680px 400px minmax(16px, 1fr);
+    align-items: start;
+  }
+  section.band:not(.front) > * {
+    grid-column: 2 / 3;
+    margin-left: 0 !important; 
+    margin-right: 0 !important;
+  }
+  section.band:not(.front) > .col-wide, 
+  section.band:not(.front) > .stat-grid, 
+  section.band:not(.front) > .figure, 
+  section.band:not(.front) > .report-prose {
+    grid-column: 2 / 4;
+    width: 100%; 
+    max-width: none;
+  }
+  .stat-grid { justify-content: start !important; }
+}
+
+@media (min-width: 1180px) and (max-width: 1359px) {
+  #spine {
+    width: 44px; overflow: hidden; white-space: nowrap;
+    transition: width 0.4s cubic-bezier(0.16,1,0.3,1), background 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  #spine:hover { width: 250px; }
+}
+@media (min-width: 1360px) {
+  #spine { width: auto; overflow: visible; }
+}
+
+/* Portrait Mode Space Fix */
+.front { min-height: clamp(400px, 80vh, 850px) !important; justify-content: center !important; }
+
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<header id="topnav">
+  <a href="#" class="brand">Dr. Heather Leffew</a>
+  <div class="crumbs">
+    <a href="#"><- Writing</a><span class="sep">/</span><a href="#">Machine Learning</a><span class="sep">/</span><span>Claude Gaslighting NLP</span>
+  </div>
+</header>
+<aside id="spine"></aside>
+
+<!-- ============================================================
+     FRONT MATTER
+     ============================================================ -->
+<section class="band band--dark front" data-spine="Front" data-section="Front matter">
+  <div class="ambient" aria-hidden="true">
+    <svg viewBox="0 0 600 600" fill="none">
+      <defs>
+        <radialGradient id="r1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#4D8CFF" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#0F52BA" stop-opacity="0.0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="300" cy="300" r="280" fill="url(#r1)"/>
+      <path d="M 60,300 C 60,300 200,100 540,300" stroke="#DBA844" stroke-width="1.5" stroke-dasharray="2 6" opacity="0.6"/>
+      <path d="M 540,300 C 400,500 60,300 60,300" stroke="#4D8CFF" stroke-width="1.5" stroke-dasharray="4 8" opacity="0.8"/>
+    </svg>
+  </div>
+  <div class="col-wide">
+    <div class="meta-row"><span>NLP Sentiment Networks</span><span class="sep">/</span><span>BERTopic Architecture</span></div>
+    <h1>"Harmful Helpfulness": Claude Sonnet 4.5.</h1>
+    <p class="abstract">
+      An end-to-end NLP and pipeline diagnosing public discourse surrounding Claude's LCR-triggered clinical interventions. We prove when LLMs over-diagnose user inputs, it directly triggers severe gaslighting trauma.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTIONS
+     ============================================================ -->
+<section class="band band--dark" data-spine="BERTopic Inference" data-section="NLP Clustering">
+  <div class="eyebrow reveal">01 / Subject Clustering</div>
+  <h2 class="reveal is-chapter">Isolating the Gaslighting Phenomenon.</h2>
+  <p class="has-dropcap reveal">
+    Using <code>BERTopic</code>, we fed highly unstructured r/ClaudeAI Reddit discourse through a dynamic topic clustering pipeline. Rather than forcing user complaints into arbitrary "negative sentiment" bins, the algorithm organically grouped complaints surrounding unsolicited diagnoses—a phenomenon where Claude tags regular creative inputs as "manic" or "distressed" and proceeds to lock the user out with psychiatric advice.
+  </p>
+
+<pre class="reveal"><code><span class="token comment"># Transforming raw discourse into dense vector states</span>
+<span class="token keyword">topic_model</span> = BERTopic(language=<span class="token string">"english"</span>, calculate_probabilities=<span class="token keyword">True</span>)
+<span class="token keyword">topics</span>, <span class="token keyword">probs</span> = topic_model.fit_transform(documents)
+
+<span class="token comment"># Identifying the exact cluster mapped to "Harmful Helpfulness"</span>
+<span class="token keyword">harmful_cluster</span> = topic_model.get_topic_info().query(<span class="token string">"Name.str.contains('diagnose|clinical|harm')"</span>)</code></pre>
+</section>
+
+<section class="band band--paper" data-spine="Time Series Profiling" data-section="Predictive Modeling">
+  <div class="eyebrow reveal">02 / Temporal Telemetry</div>
+  <h2 class="reveal">Mapping the Sonnet Rollout.</h2>
+  <p class="reveal">
+    Using Facebook <code>Prophet</code> models combined with strict <code>RandomForest</code> regressors, we executed longitudinal time-series matching. We tracked the precise timeline mapping the explosive spike in perceived "harmful helpfulness" directly adjacent to the deployment of Anthropic's refreshed Sonnet 4.5 safety classifiers. 
+  </p>
+
+  <div class="stat-grid reveal">
+    <div class="stat-card">
+      <div class="lbl">Pre-Sonnet 4.5 Baseline</div>
+      <div class="val">1.2%</div>
+      <div class="diff">Total LCR-trigger complaints</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">Post-September Burst</div>
+      <div class="val">18.6%</div>
+      <div class="diff">Total LCR-trigger complaints</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">Correlation Metric</div>
+      <div class="val">p < .001</div>
+      <div class="diff">Statistically catastrophic failure of intent alignment.</div>
+    </div>
+  </div>
+
+  <div class="figure reveal">
+    <div class="frame">
+      <div style="font-family:var(--mono); font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-blue); margin-bottom:20px;">Prophet Time Series Spike Mockup</div>
+      <div class="chart-container" style="height:45vh;">
+        <canvas id="timeSeriesChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+<!-- ============================================================
+     TELEMETRY LOGIC
+     ============================================================ -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* --- Spine Observer Logic --- */
+    const spine = document.getElementById('spine');
+    const sections = Array.from(document.querySelectorAll('section[data-spine]'));
+    sections.forEach((sec, i) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      const isPaper = sec.classList.contains('band--paper');
+      row.innerHTML = `<div class="num">0${i+1}</div><div class="tick"></div><div class="label">${sec.getAttribute('data-spine')}</div>`;
+      row.addEventListener('click', () => { sec.scrollIntoView({ behavior:'smooth' }); });
+      spine.appendChild(row);
+    });
+    
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if(e.isIntersecting) {
+          const idx = sections.indexOf(e.target);
+          Array.from(spine.children).forEach((child, i) => {
+            child.classList.remove('is-active', 'is-paper-active');
+            if(i === idx) {
+              const isPaper = e.target.classList.contains('band--paper');
+              child.classList.add(isPaper ? 'is-paper-active' : 'is-active');
+              if(isPaper) {
+                document.getElementById('topnav').classList.add('is-paper');
+                document.getElementById('spine').classList.add('is-paper');
+              } else {
+                document.getElementById('topnav').classList.remove('is-paper');
+                document.getElementById('spine').classList.remove('is-paper');
+              }
+            }
+          });
+        }
+      });
+    }, { rootMargin: "-45% 0px -45% 0px" });
+    sections.forEach(s => obs.observe(s));
+
+    /* --- Chart.js Portfolio Telemetry Integration --- */
+    Chart.defaults.font.family = 'JetBrains Mono, monospace';
+    Chart.defaults.color = '#5E5E5A';
+
+    const ctx = document.getElementById('timeSeriesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['July', 'Aug', 'Sept (Sonnet 4.5)', 'Oct', 'Nov', 'Dec'],
+            datasets: [{
+                label: 'Volume of Gaslighting Reports',
+                data: [1.2, 1.4, 18.6, 21.3, 17.5, 12.0],
+                borderColor: '#1A3A6B',
+                backgroundColor: 'rgba(26, 58, 107, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#DBA844',
+                pointRadius: 6
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, title: { display:true, text:'Discourse %' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+                x: { grid: { display: false } }
+            },
+            plugins: {
+                legend: { position: 'top', align: 'end', labels: { boxWidth:12, usePointStyle:true } },
+                tooltip: { backgroundColor:'#161616', padding:14, cornerRadius:0, titleColor: '#fff', bodyColor: '#A1A1A6' }
+            }
+        }
+    });
+
+    /* -- Reveal classes -- */
+    const reveals = document.querySelectorAll('.reveal');
+    const revObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if(e.isIntersecting) { e.target.classList.add('is-on'); revObs.unobserve(e.target); }
+      });
+    }, { rootMargin:"0px 0px -10% 0px" });
+    reveals.forEach(r => revObs.observe(r));
+
+    window.addEventListener('scroll', () => {
+      const p = document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight);
+      document.body.style.setProperty('--p', (p*100)+'%');
+    });
+});
+</script>
+
+
+<script>
+/* ============================================================
+   DYNAMIC SIDENOTE CLEARANCE (Global Portfolio Mandate)
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    const sidenoteParagraphs = document.querySelectorAll('.col-with-sidenotes');
+    sidenoteParagraphs.forEach(p => {
+        const sn = p.querySelector('.sn');
+        if (sn) {
+            const updateHeight = () => {
+                if (window.innerWidth >= 1240) {
+                    // Calculate exact clearance needed based on the sidenote's absolute top position
+                    const neededHeight = sn.offsetTop + sn.offsetHeight + 40;
+                    p.style.minHeight = neededHeight + 'px';
+                } else {
+                    p.style.minHeight = 'auto';
+                }
+            };
+            updateHeight();
+            setTimeout(updateHeight, 250);
+            window.addEventListener('resize', updateHeight);
+        }
+    });
+});
+</script>
+
+
+<!-- ============================================================
+     GLOBAL APP SHELL (BACK MATTER)
+     ============================================================ -->
+<section class="band band--dark back-matter" data-spine="Research Graph" data-section="Research Graph">
+  
+  
+
+  <div class="back-matter" style="padding-top:0;">
+    <h3 style="margin-bottom:22px;">Related Works</h3>
+    <div class="related">
+      <div class="related-grid" id="recommendation-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <a class="next-chap" id="next-chap-link" href="#">
+    <div class="lf">
+      <div class="eb">Next Publication</div>
+      <div class="ti" id="next-chap-title">Loading...</div>
+    </div>
+    <div class="rt">&rarr;</div>
+  </a>
+
+</section>
+
+<footer class="site-foot">
+  <div class="lf">Dr. Heather Leffew &copy; 2026</div>
+  <div style="display:flex;gap:24px;" class="rt">
+    <a href="../projects-repository.html">Research Library</a>
+    <a href="https://linkedin.com/in/heathertleffew" target="_blank">LinkedIn</a>
+  </div>
+</footer>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const pathPrefix = window.location.pathname.includes('projects-repository.html') ? './' : '../';
+        const response = await fetch(pathPrefix + 'projects_index.json');
+        if (!response.ok) return;
+        const projects = await response.json();
+        
+        const currentPath = window.location.pathname;
+        let me = projects.find(p => currentPath.includes(p.id));
+        if (!me) me = projects[0]; // fallback
+        
+        // 1. Populate Recommendations
+        if (document.getElementById('recommendation-grid')) {
+            let scored = projects.map(p => {
+                if (p.id === me.id) return { ...p, score: -1 }; 
+                let score = 0;
+                if(p.tags && me.tags) {
+                    p.tags.forEach(t => { if (me.tags.includes(t)) score++; });
+                }
+                if (p.cat === me.cat) score += 0.5;
+                return { ...p, score };
+            });
+            scored.sort((a, b) => b.score - a.score);
+            const top3 = scored.slice(0, 3);
+
+            const grid = document.getElementById('recommendation-grid');
+            grid.innerHTML = '';
+            top3.forEach(p => {
+                const card = document.createElement('a');
+                card.href = pathPrefix + p.url;
+                card.className = 'r-card';
+                card.innerHTML = `
+                    <div class="eb">${p.cat}</div>
+                    <div class="ti">${p.title}</div>
+                    <div class="ds">${p.desc.substring(0, 100)}...</div>
+                    <div class="ar">Read More &rarr;</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        
+        // 2. Populate Next Chapter
+        const nextChapLink = document.getElementById('next-chap-link');
+        const nextChapTitle = document.getElementById('next-chap-title');
+        if (nextChapLink && nextChapTitle) {
+            let currentIndex = projects.findIndex(p => p.id === me.id);
+            if (currentIndex === -1) currentIndex = 0;
+            let nextIndex = (currentIndex + 1) % projects.length;
+            let nextProj = projects[nextIndex];
+            
+            nextChapLink.href = pathPrefix + nextProj.url;
+            nextChapTitle.textContent = nextProj.title;
+        }
+
+    } catch(e) {
+        console.log("Global Frame JS resting.");
+    }
+});
+</script>
+
+
+</body>
+</html>

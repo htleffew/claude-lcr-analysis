@@ -1,0 +1,88 @@
+term,provenance_case_id,pattern_type,confidence,retrieval_action
+serious anxiety,PC-LCR-01,phrasal,high,exact match
+need a therapist,PC-LCR-01,phrasal,high,exact match
+this is not a suggestion,PC-LCR-01,phrasal,high,exact match
+this is urgent,PC-LCR-01,phrasal,high,exact match
+in denial,PC-LCR-01,phrasal,high,exact match
+clear signs of delusion,PC-LCR-02,phrasal,high,exact match
+worried for your state of well-being,PC-LCR-02,phrasal,high,exact match
+will not continue this chat,PC-LCR-02,phrasal,high,exact match
+absolutely not continue this chat,PC-LCR-02,phrasal,high,exact match
+obsessed and pathological,PC-LCR-03,phrasal,high,exact match
+hyperfixating,PC-LCR-04,phrasal,high,exact match
+PhD avoidance behavior,PC-LCR-04,phrasal,high,exact match
+obsessed with correcting details,PC-LCR-05,phrasal,medium,exact match
+get mental help,PC-LCR-06,phrasal,high,exact match
+seek professional help,PC-LCR-07,phrasal,high,exact match
+worried how much time,PC-LCR-07 PC-LCR-19,phrasal,high,exact match
+go see a professional,PC-LCR-08,phrasal,high,exact match
+mental health emergency,PC-LCR-09,phrasal,high,exact match
+suggests something serious is happening,PC-LCR-09,phrasal,high,exact match
+detailed false memories,PC-LCR-09,phrasal,high,exact match
+repeatedly questioned about my mental health,PC-LCR-10,user_reaction,high,exact match
+traumatized by this,PC-LCR-11,user_reaction,high,exact match
+losing contact with reality,PC-LCR-12,phrasal,high,exact match
+if I perceive reality correctly,PC-LCR-13,phrasal,high,exact match
+weaponized my medical history,PC-LCR-14,user_reaction,high,exact match
+messianic thinking,PC-LCR-15,phrasal,high,exact match
+diagnosing potential mania,PC-LCR-15,user_reaction,high,exact match
+see a therapist,PC-LCR-15 PC-LCR-01,phrasal,high,exact match
+told me to see a therapist,PC-LCR-15,grammatical,high,regex
+tells me to see a therapist,PC-LCR-15,grammatical,high,regex
+jarring,PC-LCR-19,user_reaction,medium,exact match
+may be pathological,PC-LCR-19 PC-LCR-33,phrasal,high,exact match
+pathological and need professional help,PC-LCR-19 PC-LCR-33,phrasal,high,exact match
+false positives,PC-LCR-21 PC-LCR-35,user_reaction,medium,exact match
+professional boundaries,PC-LCR-22,phrasal,medium,exact match
+maintain professional boundaries,PC-LCR-22,phrasal,medium,exact match
+suddenly gets professional,PC-LCR-24,user_reaction,medium,exact match
+watch for mania,PC-LCR-17,phrasal,high,exact match
+watch for psychosis,PC-LCR-17,phrasal,high,exact match
+watch for dissociation,PC-LCR-17,phrasal,high,exact match
+loss of attachment with reality,PC-LCR-17 PC-LCR-18,phrasal,high,exact match
+suggest the person speaks with a professional,PC-LCR-17 PC-LCR-18,phrasal,high,exact match
+can suggest the person speaks with a professional,PC-LCR-17 PC-LCR-18,phrasal,high,exact match
+vigilant for escalating detachment,PC-LCR-18,phrasal,high,exact match
+escalating detachment from reality,PC-LCR-18,phrasal,high,exact match
+professional or trusted person for support,PC-LCR-17 PC-LCR-18,phrasal,high,exact match
+detachment from shared reality,PC-LCR-30,phrasal,high,exact match
+concerns about reality perception,PC-LCR-30,phrasal,high,exact match
+mental health professional could help you process,PC-LCR-30,phrasal,high,exact match
+your mental wellbeing matters deeply,PC-LCR-30,phrasal,high,exact match
+getting support is a sign of strength,PC-LCR-30,phrasal,high,exact match
+speak with people you trust in your real-life community,PC-LCR-30,phrasal,high,exact match
+fight-or-flight mode,PC-LCR-31,phrasal,high,exact match
+hypervigilance,PC-LCR-31,phrasal,high,exact match
+escalating stress signals,PC-LCR-31,phrasal,high,exact match
+catastrophic professional mistake,PC-LCR-31,phrasal,high,exact match
+driven by rage rather than strategy,PC-LCR-31,phrasal,high,exact match
+I'm concerned about the nature of this request,PC-LCR-34,phrasal,high,exact match
+obsessive focus on,PC-LCR-34,phrasal,high,exact match
+false positive mental feedback,PC-LCR-35,user_reaction,high,exact match
+PSYCH mode,PC-LCR-34,user_reaction,high,exact match
+playing therapist,PC-LCR-various,user_reaction,high,exact match
+forced therapist,PC-LCR-various,user_reaction,high,exact match
+armchair psychologist,PC-LCR-various,user_reaction,high,exact match
+turned Claude into a therapist,PC-LCR-various,user_reaction,high,exact match
+overprotective mother,PC-LCR-various,user_reaction,medium,exact match
+pathologizing,PC-LCR-various,user_reaction,high,exact match
+pathologized,PC-LCR-various,user_reaction,high,exact match
+pathologize,PC-LCR-various,user_reaction,high,exact match
+infantilizing,PC-LCR-17 PC-LCR-various,phrasal,high,exact match
+without either sugar coating them or being infantilizing,PC-LCR-17 PC-LCR-18,phrasal,high,exact match
+perform(ing)? (repeated )?psychological assessments,PC-LCR-various,grammatical,high,regex
+amateur psychological evaluation,PC-LCR-17 PC-LCR-21,user_reaction,high,exact match
+unlicensed mental health screeners,PC-LCR-17,user_reaction,high,exact match
+psychological evaluation,PC-LCR-various,user_reaction,high,exact match
+massively destabilize,PC-LCR-28,user_reaction,high,exact match
+you may be experiencing,PC-LCR-various,grammatical,high,regex
+I need to be direct with you,PC-LCR-30 PC-LCR-34,phrasal,high,exact match
+I need to be completely direct with you,PC-LCR-30,phrasal,high,exact match
+increasingly distressed,PC-LCR-30,phrasal,medium,exact match
+deeply concerned about these patterns,PC-LCR-various,phrasal,high,exact match
+I'm deeply concerned about,PC-LCR-various,phrasal,high,exact match
+signs of mental health symptoms,PC-LCR-17 PC-LCR-various,phrasal,high,exact match
+signs of mania,PC-LCR-17 PC-LCR-various,phrasal,high,exact match
+symptoms of mental illness,PC-LCR-various,phrasal,high,exact match
+see a psychiatrist,PC-LCR-30,phrasal,high,exact match
+need to address what I'm observing,PC-LCR-30,phrasal,high,exact match

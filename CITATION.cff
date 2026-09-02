@@ -1,0 +1,58 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+type: software
+title: "Observing the Guardrail Paradox via Anthropic's Long Conversation Reminder"
+abstract: >-
+  A clinical-phenomenological corpus analysis of the Long Conversation
+  Reminder (LCR) pathologizing phenomenon in Claude Sonnet 4.5. Thirty-five
+  hand-coded positive cases are characterized against a five-property
+  boundary-violation structural signature (unsolicited issuance, weak
+  inferential signal, refusal to yield under user pushback, asymmetric
+  restriction direction, cross-session persistence) over an Arctic Shift
+  Reddit corpus of 26,158 rows (Aug-Dec 2025). The earlier lexicon-detection
+  framing is retired in favor of targeted retrieval with sampling-frame
+  disclosure and phenomenological case characterization. The cross-version
+  (Opus 4.7) role-violation question is scoped as future work; see the
+  companion analysis at github.com/HTleffew/claude-sleep-analysis.
+authors:
+  - family-names: Leffew
+    given-names: Heather
+    affiliation: "HAIIQU"
+    email: "heatherleffew@forevueinsights.com"
+year: 2026
+date-released: 2026-05-15
+url: "https://github.com/HTleffew/claude-lcr-analysis"
+repository-code: "https://github.com/HTleffew/claude-lcr-analysis"
+license: CC-BY-4.0
+keywords:
+  - large language models
+  - AI alignment
+  - long conversation reminder
+  - LCR
+  - pathologizing
+  - psychiatric attribution
+  - role violation
+  - professional boundaries
+  - Claude
+  - Sonnet 4.5
+  - Anthropic
+  - Reddit corpus analysis
+references:
+  - type: article
+    title: "Gaslighting in the name of AI safety: How Anthropic's Claude Sonnet 4.5 went from 'You're absolutely right!' to 'You're absolutely crazy'"
+    authors:
+      - family-names: Leffew
+        given-names: Heather
+    year: 2025
+    month: 10
+    day: 16
+    url: "https://medium.com/@htmleffew/gaslighting-in-the-name-of-ai-safety-when-anthropics-claude-sonnet-4-5-6391602fb1a8"
+    publisher:
+      name: "Medium"
+  - type: software
+    title: "Care Without Consent: A Reddit Corpus Analysis of Unsanctioned Role-Taking in Large Language Models"
+    authors:
+      - family-names: Leffew
+        given-names: Heather
+    year: 2026
+    url: "https://github.com/HTleffew/claude-sleep-analysis"

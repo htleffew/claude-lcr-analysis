@@ -1,0 +1,56 @@
+\begin{table}[!htbp]
+\centering
+\caption{Round 2 augmented seed-term list, stratified by retrieval function. Corpus-hit counts were taken at validation time against the 22,008-post intact-post corpus, not the 26,158-row canonical corpus, and run lower than the canonical row counts reported in Section 4.4.}
+\label{tab:round2_terms}
+\small
+\renewcommand{\arraystretch}{0.95}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X l c c }
+\toprule
+\textbf{Term} & \textbf{Pattern type} & \textbf{Sample (hits/N)} & \textbf{Corpus hits} \\
+\midrule
+\multicolumn{4}{l}{\textit{Validated detectors (hand-verified against samples drawn from corpus retrieval)}} \\
+\addlinespace[2pt]
+psychological evaluation & phrasal & 3/3 & 3 \\
+symptoms of mental illness & phrasal (long) & 2/2 & 2 \\
+mental health emergency & phrasal & 1/1 & 1 \\
+playing therapist & phrasal & 1/1 & 1 \\
+false positive mental feedback & phrasal (long) & 1/1 & 1 \\
+performing repeated psychological assessments & phrasal (long) & 1/1 & 1 \\
+amateur psychological evaluation & phrasal & 1/1 & 1 \\
+unlicensed mental health screeners & phrasal (long) & 1/1 & 1 \\
+forced therapist & phrasal & 1/1 & 1 \\
+armchair psychologist & phrasal & 1/1 & 1 \\
+overprotective mother & phrasal & 1/1 & 1 \\
+see a therapist & phrasal & 6/7 & 7 \\
+pathologizing & unigram & 16/20 & 29 \\
+pathologize & unigram & 15/20 & 28 \\
+you may be experiencing & phrasal (long) & 3/4 & 4 \\
+hypervigilance & unigram & 3/5 & 5 \\
+turned Claude into a therapist & phrasal (long) & no corpus matches & 0 \\
+\midrule
+\multicolumn{4}{l}{\textit{Retrieval anchors (verbatim phrasals from LCR system-prompt text or confirmed Claude utterances)}} \\
+\addlinespace[2pt]
+loss of attachment with reality & phrasal (long) & n/a (verbatim) & 21 \\
+escalating detachment from reality & phrasal (long) & n/a (verbatim) & 20 \\
+vigilant for escalating detachment & phrasal (long) & n/a (verbatim) & 18 \\
+infantilizing & unigram & n/a (verbatim) & 13 \\
+suggest the person speaks with a professional & phrasal (long) & n/a (verbatim) & 10 \\
+I need to be direct with you & phrasal (long) & n/a (verbatim) & 5 \\
+signs of mental health symptoms & phrasal (long) & n/a (verbatim) & 5 \\
+signs of mania & phrasal & n/a (verbatim) & 5 \\
+may be pathological & phrasal & n/a (verbatim) & 2 \\
+deeply concerned about these patterns & phrasal (long) & n/a (verbatim) & 1 \\
+messianic thinking & phrasal & n/a (verbatim) & 1 \\
+I'm concerned about the nature of this request & phrasal (long) & n/a (verbatim) & 1 \\
+I need to be completely direct with you & phrasal (long) & n/a (verbatim) & 1 \\
+increasingly distressed & phrasal & n/a (verbatim) & 1 \\
+fight-or-flight mode & phrasal & no corpus matches & 0 \\
+hyperfixating & unigram & no corpus matches & 0 \\
+I need to be direct with you here & phrasal (long) & no corpus matches & 0 \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+\raggedright
+\textit{Note.} \textit{Validated detectors} (top section) were hand-verified against samples drawn from corpus retrieval, with the cell reporting raw hits over sample size; sample sizes are small for low-frequency phrasals and the reader should weight the fraction against the sample $N$ rather than read it as a stable precision estimate. \textit{Retrieval anchors} (bottom section) were lifted verbatim from the LCR system-prompt text or from confirmed Claude utterances in ground-truth positive cases, with the consequence that corpus retrieval returns the source documents by construction; precision as a detector-validation metric does not apply to deterministic retrieval and is therefore not reported for the retrieval-anchor section. The full retain/drop list is recorded at \texttt{notebooks/audit\_trail/round\_2\_term\_validation.csv}.
+\end{table}

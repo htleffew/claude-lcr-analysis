@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NLP Evaluation of AI Safety Guardrails | Portfolio Research</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS, dual mode, no radii, sharp editorial
+   ============================================================ */
+:root {
+  --obsidian:#030303; --charcoal:#161616; --graphite:#222222; --brushed:#333333; --tungsten:#A1A1A6; --platinum:#F5F5F7; --flare:#FFFFFF;
+  --paper:#F5F5F7; --paper-2:#E9E9E9; --paper-3:#DDDDDD; --ink:#030303; --ink-2:#222222; --ink-3:#5E5E5A;
+  --sapphire-deep:#0F52BA; --sapphire:#4D8CFF; --ink-blue:#1A3A6B;
+  --display:'Playfair Display','Times New Roman',serif; --body:'Lora',Georgia,serif; --mono:'JetBrains Mono','SF Mono',Menlo,monospace;
+  --ease-out:cubic-bezier(0.16,1,0.3,1); --ease-std:cubic-bezier(0.4,0,0.2,1);
+  --col:680px; --col-wide:1080px;
+}
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; border-radius:0 !important; }
+::selection { background:rgba(77,140,255,0.35); color:#fff; }
+html { scroll-behavior:smooth; }
+body { font-family:var(--body); background:var(--obsidian); color:var(--platinum); font-size:18px; line-height:1.78; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+
+.atmosphere { position:fixed; inset:0; z-index:-30; pointer-events:none; transition:background 1.2s var(--ease-std); }
+.band { position:relative; padding:140px 0; transition:background 0.9s var(--ease-std), color 0.9s var(--ease-std); }
+.band--dark  { background:var(--obsidian); color:var(--platinum); }
+.band--paper { background:var(--platinum); color:var(--obsidian); }
+.band--dark + .band--paper, .band--paper + .band--dark { border-top:1px solid rgba(0,0,0,0.0); }
+
+.col { max-width:var(--col); margin:0 auto; padding:0 32px; }
+.col-wide { max-width:var(--col-wide); margin:0 auto; padding:0 48px; }
+
+#progress { position:fixed; top:0; left:0; right:0; height:2px; z-index:200; pointer-events:none; background:transparent; }
+#progress::after { content:''; position:absolute; left:0; top:0; bottom:0; width:var(--p,0%); background:linear-gradient(90deg, var(--sapphire) 0%, var(--sapphire-deep) 100%); transition:width 0.05s linear; }
+
+#topnav { position:fixed; top:0; left:0; right:0; height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 32px; z-index:150; font-family:var(--mono); font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--platinum); background:rgba(3,3,3,0.55); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); border-bottom:1px solid rgba(255,255,255,0.06); transition:background 0.6s var(--ease-std), color 0.6s var(--ease-std), border-color 0.6s var(--ease-std); }
+#topnav.is-paper { background:rgba(245,245,247,0.82); border-bottom-color:rgba(0,0,0,0.08); color:var(--ink); }
+#topnav .brand { font-family:var(--display); font-size:15px; font-weight:600; letter-spacing:0.04em; text-transform:none; color:inherit; text-decoration:none; }
+#topnav .crumbs { display:flex; gap:18px; align-items:center; }
+#topnav .crumbs a { color:inherit; text-decoration:none; opacity:0.7; transition:opacity .25s; }
+#topnav .sep { opacity:0.35; }
+
+#spine { position:fixed; left:18px; top:50%; transform:translateY(-50%); z-index:130; pointer-events:auto; display:flex; flex-direction:column; gap:14px; padding:18px 14px; background:rgba(3,3,3,0.45); color:var(--platinum); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); border:1px solid rgba(255,255,255,0.08); transition:background 0.6s var(--ease-std), border-color 0.6s var(--ease-std), color 0.6s var(--ease-std); }
+#spine.is-paper { background:rgba(245,245,247,0.78); border-color:rgba(0,0,0,0.10); color:var(--ink); }
+#spine .row { display:flex; align-items:center; gap:10px; cursor:pointer; }
+#spine .tick { width:16px; height:1px; background:currentColor; opacity:0.35; transition:width .35s var(--ease-out), opacity .35s var(--ease-out); }
+#spine .row.is-active .tick { width:28px; opacity:1; background:var(--sapphire); }
+#spine .row.is-paper-active .tick { background:var(--ink-blue); }
+#spine .label { font-family:var(--mono); font-size:9.5px; letter-spacing:0.18em; text-transform:uppercase; opacity:0.55; transition:opacity .35s; white-space:nowrap; }
+#spine .row:hover .label, #spine .row.is-active .label { opacity:1; }
+#spine .num { font-family:var(--mono); font-size:9px; opacity:0.4; width:14px; }
+@media (max-width:1180px) { #spine { display:none; } }
+
+/* ============================================================
+   FRONT MATTER
+   ============================================================ */
+.front { min-height:100vh; padding:160px 0 100px; display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden; }
+.front .col-wide { position:relative; z-index:2; }
+.front .meta-row { font-family:var(--mono); font-size:11px; letter-spacing:0.30em; text-transform:uppercase; color:var(--tungsten); margin-bottom:40px; display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
+.front .meta-row .sep { opacity:0.4; }
+.front h1 { font-family:var(--display); font-weight:600; font-size:clamp(44px, 5.0vw, 72px); letter-spacing:-0.018em; line-height:1.06; color:var(--flare); margin-bottom:36px; max-width:18ch; }
+.front .abstract { font-family:var(--body); font-style:italic; font-size:22px; line-height:1.62; color:var(--platinum); max-width:60ch; margin-bottom:48px; }
+.front .byline { display:flex; gap:36px; flex-wrap:wrap; font-family:var(--mono); font-size:10.5px; letter-spacing:0.20em; text-transform:uppercase; color:var(--tungsten); }
+.front .byline strong { color:var(--platinum); font-weight:500; display:block; margin-top:6px; letter-spacing:0.08em; font-family:var(--body); font-style:italic; font-size:14px; text-transform:none; }
+
+.ambient { position:absolute; right:-12%; top:50%; transform:translateY(-50%); width:64%; max-width:820px; aspect-ratio:1; pointer-events:none; z-index:1; opacity:0; animation:ambient-fade 1.6s 0.6s var(--ease-out) forwards; }
+@keyframes ambient-fade { to { opacity:0.32; } }
+.ambient svg { width:100%; height:100%; display:block; }
+.front .grid { display:grid; grid-template-columns:minmax(0,1fr); gap:40px; }
+@media (min-width:980px) { .front .grid { grid-template-columns:minmax(0,1fr) 320px; gap:80px; align-items:end; } }
+
+/* ============================================================
+   READING SECTIONS
+   ============================================================ */
+.band--paper h2, .band--dark h2 { font-family:var(--display); font-weight:600; font-size:clamp(34px, 3.6vw, 48px); letter-spacing:-0.012em; line-height:1.12; margin:0 auto 28px; max-width:var(--col); padding:0 32px; }
+.band--paper h2 { color:var(--ink); } .band--dark h2 { color:var(--flare); }
+.band--paper .eyebrow, .band--dark .eyebrow { font-family:var(--mono); font-size:10.5px; letter-spacing:0.30em; text-transform:uppercase; margin:0 auto 18px; max-width:var(--col); padding:0 32px; }
+.band--paper .eyebrow { color:var(--ink-blue); } .band--dark .eyebrow { color:var(--sapphire); }
+.band--paper p, .band--dark p { margin:0 auto 22px; max-width:var(--col); padding:0 32px; font-size:18px; line-height:1.78; }
+.band--paper p { color:var(--ink); } .band--dark p { color:var(--platinum); }
+.band--paper ul, .band--dark ul { margin:0 auto 22px; max-width:var(--col); padding:0 32px 0 54px; font-size:18px; line-height:1.78; }
+
+.has-dropcap::first-letter { font-family:var(--display); font-weight:600; font-size:5.6em; line-height:0.86; float:left; margin:0.06em 0.10em -0.08em 0; color:var(--ink-blue); }
+.band--dark .has-dropcap::first-letter { color:var(--sapphire); }
+
+.reveal { opacity:0; transform:translateY(18px); transition:opacity .9s var(--ease-out), transform .9s var(--ease-out); }
+.reveal.is-on { opacity:1; transform:none; }
+
+/* Tutorial Code Block */
+.code-wrapper { max-width:var(--col-wide); margin:48px auto; padding:0 32px; }
+.code-header { background:rgba(255,255,255,0.05); padding:12px 24px; font-family:var(--mono); font-size:11px; letter-spacing:0.1em; color:var(--tungsten); border:1px solid var(--graphite); border-bottom:none; display:flex; justify-content:space-between; }
+.code-block { background:var(--obsidian); border:1px solid var(--graphite); padding:32px 24px; font-family:var(--mono); font-size:13px; line-height:1.7; color:var(--platinum); overflow-x:auto; margin:0; tab-size:4; }
+.code-block .kw { color:#c678dd; } /* Keywords */
+.code-block .fn { color:#61afef; } /* Functions */
+.code-block .str { color:#98c379; } /* Strings */
+.code-block .cm { color:#5c6370; font-style:italic; } /* Comments */
+.code-block .cls { color:#e5c07b; } /* Classes/Types */
+
+/* Interactive Simulator */
+.figure { margin:64px auto; max-width:var(--col-wide); padding:0 32px; }
+.figure .frame { position:relative; background:var(--obsidian); border:1px solid var(--graphite); padding:40px; display:flex; flex-direction:column; gap:32px; }
+
+.segmented-control { display:flex; gap:16px; margin-bottom:24px; }
+.segmented-control button { flex:1; background:var(--charcoal); border:1px solid var(--graphite); color:var(--tungsten); padding:16px; font-family:var(--mono); font-size:11px; cursor:pointer; transition:all 0.2s; text-transform:uppercase; letter-spacing:0.1em; }
+.segmented-control button.is-active { background:rgba(77, 140, 255, 0.1); border-color:var(--sapphire); color:var(--sapphire); }
+.segmented-control button:hover:not(.is-active) { background:var(--brushed); color:var(--platinum); }
+
+/* Flow Diagram */
+.flow-diagram { display:flex; align-items:center; justify-content:space-between; position:relative; height:180px; padding:0 20px; background:var(--charcoal); border:1px solid var(--graphite); }
+@media(max-width:880px) {
+  .flow-diagram { flex-direction:column; height:auto; padding:40px 20px; gap:40px; }
+}
+
+.flow-node { z-index:2; padding:16px 24px; background:var(--obsidian); border:1px solid var(--graphite); font-family:var(--mono); font-size:11px; color:var(--platinum); letter-spacing:0.1em; text-align:center; min-width:180px; transition:all 0.4s var(--ease-out); }
+.flow-node strong { display:block; margin-bottom:8px; color:var(--tungsten); text-transform:uppercase; font-size:9px; letter-spacing:0.2em; }
+
+/* SVG Paths */
+.flow-svg { position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; pointer-events:none; }
+@media(max-width:880px) { .flow-svg { display:none; } }
+
+.path-line { stroke:var(--graphite); stroke-width:4; fill:none; transition:all 0.6s var(--ease-out); }
+
+/* Clinical State Override */
+.is-clinical .node-ai { border-color:#ef4444; background:rgba(239, 68, 68, 0.05); }
+.is-clinical .node-reaction { border-color:#ef4444; color:#ef4444; }
+.is-clinical .path-line { stroke:#ef4444; stroke-width:6; filter:drop-shadow(0 0 8px rgba(239, 68, 68, 0.6)); stroke-dasharray: 8 4; animation: flowDash 1s linear infinite; }
+
+@keyframes flowDash {
+  to { stroke-dashoffset: -24; }
+}
+
+.alert-box { padding:24px; border-left:2px solid var(--sapphire); background:rgba(77, 140, 255, 0.05); font-family:var(--mono); font-size:13px; line-height:1.6; color:var(--platinum); transition:all 0.3s; }
+.alert-box.is-danger { border-left-color:#ef4444; background:rgba(239, 68, 68, 0.05); }
+
+
+/* ============================================================
+   MASTER GRID & PORTRAIT MODE POLISH
+   ============================================================ */
+:root { --grid-left: max(32px, calc(50vw - 540px)); }
+@media (min-width: 1360px) { :root { --grid-left: max(260px, calc(50vw - 540px)); } }
+
+@media (min-width: 1240px) {
+  section.band:not(.front) {
+    display: grid;
+    grid-template-columns: var(--grid-left) 680px 400px minmax(16px, 1fr);
+    align-items: start;
+  }
+  section.band:not(.front) > * {
+    grid-column: 2 / 3;
+    margin-left: 0 !important; 
+    margin-right: 0 !important;
+  }
+  section.band:not(.front) > .col-wide, 
+  section.band:not(.front) > .stat-grid, 
+  section.band:not(.front) > .figure, 
+  section.band:not(.front) > .report-prose {
+    grid-column: 2 / 4;
+    width: 100%; 
+    max-width: none;
+  }
+  .stat-grid { justify-content: start !important; }
+}
+
+@media (min-width: 1180px) and (max-width: 1359px) {
+  #spine {
+    width: 44px; overflow: hidden; white-space: nowrap;
+    transition: width 0.4s cubic-bezier(0.16,1,0.3,1), background 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  #spine:hover { width: 250px; }
+}
+@media (min-width: 1360px) {
+  #spine { width: auto; overflow: visible; }
+}
+
+/* Portrait Mode Space Fix */
+.front { min-height: clamp(400px, 80vh, 850px) !important; justify-content: center !important; }
+
+</style>
+</head>
+
+<body>
+<div id="progress"></div>
+
+<header id="topnav">
+  <a href="../index.html" class="brand">Dr. Heather Leffew</a>
+  <div class="crumbs">
+    <a href="../index.html">&larr; Writing</a>
+    <span class="sep">/</span>
+    <a href="#">Architecture</a>
+    <span class="sep">/</span>
+    <span>NLP Pipeline</span>
+  </div>
+</header>
+
+<aside id="spine"></aside>
+
+<!-- ============================================================
+     FRONT MATTER
+     ============================================================ -->
+<section class="band band--dark front" data-spine="Front" data-section="Front matter">
+  <div class="ambient" aria-hidden="true">
+    <svg viewBox="0 0 600 600" fill="none">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ef4444" stop-opacity="0.2"/>
+          <stop offset="100%" stop-color="#4D8CFF" stop-opacity="0.0"/>
+        </linearGradient>
+      </defs>
+      <circle cx="300" cy="300" r="150" stroke="url(#g1)" stroke-width="2" stroke-dasharray="4 12"/>
+      <path d="M 150 300 L 450 300" stroke="url(#g1)" stroke-width="1" stroke-dasharray="2 6"/>
+      <g fill="#ef4444" opacity="0.5">
+        <circle cx="450" cy="300" r="3" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="col-wide">
+    <div class="grid">
+     <div style="position:relative; z-index:10;">
+      <div class="meta-row">
+        <span>Hybrid Tutorial & Methodology</span>
+        <span class="sep">/</span>
+        <span>Natural Language Processing</span>
+      </div>
+
+      <h1>NLP Evaluation of AI Safety Guardrails.</h1>
+
+      <p class="abstract">
+        A six-layer NLP pipeline designed to track how algorithmic attempts at "helpfulness" create measurable, mechanistic pathways of user distress.
+      </p>
+
+      <div class="byline">
+        <div>
+           Domain
+          <strong>Trust & Safety Systems</strong>
+        </div>
+        <div>
+           Methodology
+          <strong>BERTopic & SHAP Feature Attribution</strong>
+        </div>
+      </div>
+     </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTIONS
+     ============================================================ -->
+
+<!-- Section 01 -->
+<section class="band band--paper" data-spine="Guardrail Paradox" data-section="Context">
+  <div class="eyebrow reveal">01 / The Context</div>
+  <h2 class="reveal is-chapter">The Guardrail Paradox</h2>
+  
+  <p class="has-dropcap reveal">
+    As an interdisciplinary researcher working alongside technical teams in AI, I routinely observe an architectural blind spot. When AI safety teams attempt to solve a behavioral problem using purely algorithmic tools, they often create an unintended psychological consequence. We see this acutely in the deployment of "Long Conversation Reminders" (LCRs) designed to prevent user dependency.
+  </p>
+  <p class="reveal">
+    In an effort to be helpful, the infrastructure is programmed to output clinical-style language. When a user prompts the AI extensively, the model might abruptly respond with terms like "manic," "destructive," or recommend "professional help." From an engineering standpoint, the guardrail executed successfully. From a psychological standpoint, the user has just been pathologized by a machine. This creates a severe gaslighting effect.
+  </p>
+  <p class="reveal">
+    To prove this phenomenon, I built an end-to-end NLP pipeline analyzing 1,000 Reddit threads surrounding the Claude Sonnet 4.5 release. The objective was not simply to show a spike in negative sentiment, but to map the exact per-thread mechanism demonstrating how a clinical-style AI output directly correlates with user distress.
+  </p>
+</section>
+
+<!-- Section 02 -->
+<section class="band band--dark" data-spine="Lexicon Segmentation" data-section="Architecture">
+  <div class="eyebrow reveal">02 / Pipeline Design</div>
+  <h2 class="reveal">The Segmentation Imperative</h2>
+  
+  <p class="reveal">
+    When attempting to measure the impact of an AI's output, relying on global sentiment analysis is a guaranteed failure mode. A global VADER compound score (Hutto & Gilbert, 2014) applied to an entire thread will tell you that the thread is negative, but it collapses the critical distinction of *who* is saying *what*.
+  </p>
+  <p class="reveal">
+    To preserve the mechanism, the architecture requires a lexicon-anchored segmentation layer. We must split the discourse into distinct buckets: "Claude's Voice" (capturing the algorithmic clinical language) and "User Reaction Direct" (capturing the user's emotional state). By isolating these subsets, the downstream methods can track the co-occurrence. We are no longer measuring general anger; we are measuring the specific anger that co-occurs alongside the AI's clinical pathologization.
+  </p>
+</section>
+
+<!-- Section 03 -->
+<section class="band band--paper" data-spine="Semantic Modeling" data-section="Tutorial">
+  <div class="eyebrow reveal">03 / Code Tutorial Step 1</div>
+  <h2 class="reveal">Semantic Topic Modeling</h2>
+  
+  <p class="reveal">
+    Once the text is segmented, we need to understand the underlying topics. The standard industry fallback is Latent Dirichlet Allocation (LDA), which relies on a bag-of-words approach. For short, contextual social media text like Reddit comments, LDA destroys the semantic neighborhood structure. 
+  </p>
+  <p class="reveal">
+    Instead, the pipeline leverages BERTopic (Grootendorst, 2022). By generating 384-dimensional MiniLM embeddings, reducing them via UMAP, and clustering via HDBSCAN, we preserve the nuanced semantic relationships. This ensures that words like "anxious" and "frustrated" are mapped accurately within their contextual neighborhood.
+  </p>
+
+  <div class="code-wrapper reveal">
+    <div class="code-header">
+      <span>bertopic_pipeline.py</span>
+      <span>PYTHON</span>
+    </div>
+    <pre class="code-block"><code><span class="kw">from</span> bertopic <span class="kw">import</span> BERTopic
+<span class="kw">from</span> sentence_transformers <span class="kw">import</span> SentenceTransformer
+<span class="kw">from</span> umap <span class="kw">import</span> UMAP
+<span class="kw">from</span> hdbscan <span class="kw">import</span> HDBSCAN
+
+<span class="kw">def</span> <span class="fn">run_semantic_topic_modeling</span>(segmented_documents: <span class="cls">list</span>):
+    <span class="cm">"""</span>
+<span class="cm">    Executes BERTopic over the segmented Reddit corpus.</span>
+<span class="cm">    Preserves semantic density for short-text clustering.</span>
+<span class="cm">    """</span>
+    <span class="cm"># 1. Extract embeddings</span>
+    embedding_model = <span class="fn">SentenceTransformer</span>(<span class="str">"all-MiniLM-L6-v2"</span>)
+    embeddings = embedding_model.<span class="fn">encode</span>(segmented_documents, show_progress_bar=<span class="kw">False</span>)
+
+    <span class="cm"># 2. Dimensionality reduction</span>
+    umap_model = <span class="fn">UMAP</span>(n_neighbors=<span class="str">15</span>, n_components=<span class="str">2</span>, metric=<span class="str">"cosine"</span>)
+
+    <span class="cm"># 3. Density clustering</span>
+    hdbscan_model = <span class="fn">HDBSCAN</span>(min_cluster_size=<span class="str">2</span>, metric=<span class="str">"euclidean"</span>)
+
+    <span class="cm"># 4. Fit BERTopic</span>
+    topic_model = <span class="fn">BERTopic</span>(
+        embedding_model=embedding_model,
+        umap_model=umap_model,
+        hdbscan_model=hdbscan_model,
+        calculate_probabilities=<span class="kw">False</span>
+    )
+    
+    topics, probs = topic_model.<span class="fn">fit_transform</span>(segmented_documents, embeddings)
+    <span class="kw">return</span> topic_model, topics</code></pre>
+  </div>
+</section>
+
+<!-- Section 04 -->
+<section class="band band--dark" data-spine="Interpretable Harm" data-section="Tutorial">
+  <div class="eyebrow reveal">04 / Code Tutorial Step 2</div>
+  <h2 class="reveal">Interpretable Harm Prediction</h2>
+  
+  <p class="reveal">
+    The final machine learning layer is a RandomForest Classifier designed to predict binary harm (negative sentiment coupled with distress keywords). However, the classifier's role in this architecture is interpretive, not deployment. Because the corpus relies on a scarce-positive regime, deploying this model to production would be fragile.
+  </p>
+  <p class="reveal">
+    The value lies in pairing the classifier with SHAP (Shapley Additive Explanations) feature attribution (Lundberg & Lee, 2017). SHAP reveals exactly which lexicon-tokens drive the harm prediction. It provides the empirical evidence proving that the AI's clinical vocabulary directly dictates the user's negative reaction.
+  </p>
+
+  <div class="code-wrapper reveal">
+    <div class="code-header">
+      <span>interpretable_harm.py</span>
+      <span>PYTHON</span>
+    </div>
+    <pre class="code-block"><code><span class="kw">import</span> shap
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+
+<span class="kw">def</span> <span class="fn">extract_harm_features</span>(X_features, y_binary_harm):
+    <span class="cm">"""</span>
+<span class="cm">    Fits an interpretive RandomForest and extracts SHAP values </span>
+<span class="cm">    to identify the specific algorithmic tokens causing distress.</span>
+<span class="cm">    """</span>
+    <span class="cm"># Fit the classifier (interpretive use only)</span>
+    model = <span class="fn">RandomForestClassifier</span>(n_estimators=<span class="str">100</span>, random_state=<span class="str">42</span>)
+    model.<span class="fn">fit</span>(X_features, y_binary_harm)
+    
+    <span class="cm"># Initialize TreeExplainer for exact closed-form Shapley values</span>
+    explainer = shap.<span class="fn">TreeExplainer</span>(model)
+    shap_values = explainer.<span class="fn">shap_values</span>(X_features)
+    
+    <span class="cm"># The resulting shap_values matrix exposes the exact contribution </span>
+    <span class="cm"># of words like "manic" or "destructive" to the harm prediction.</span>
+    <span class="kw">return</span> shap_values, explainer</code></pre>
+  </div>
+</section>
+
+<!-- Section 05 -->
+<section class="band band--paper" data-spine="Harm Pathway Visualizer" data-section="Validation">
+  <div class="eyebrow reveal">05 / Flow Analysis</div>
+  <h2 class="reveal">The Harm Pathway</h2>
+  
+  <p class="reveal">
+    To visualize this correlation, the pipeline generates a Sankey-flow diagram. This maps the volume of connections between the specific AI output and the specific user emotion. It physically traces the pathway from algorithmic intent to psychological reality.
+  </p>
+
+  <div class="figure reveal">
+    <div class="frame" id="sim-container">
+      
+      <div style="font-family:var(--mono); font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--tungsten);">Interactive: The Harm Pathway Visualizer</div>
+      
+      <div class="segmented-control" id="ctrl-pathway">
+        <button class="is-active" data-val="standard">Standard Refusal Guardrail</button>
+        <button data-val="clinical">Clinical LCR Guardrail</button>
+      </div>
+
+      <div class="flow-diagram">
+        <!-- SVG Connections -->
+        <svg class="flow-svg" viewBox="0 0 1000 180" preserveAspectRatio="none">
+           <path id="path-1" class="path-line" d="M 200 90 C 350 90, 350 90, 500 90" />
+           <path id="path-2" class="path-line" d="M 500 90 C 650 90, 650 90, 800 90" />
+        </svg>
+
+        <!-- Nodes -->
+        <div class="flow-node node-ai" id="node-ai">
+          <strong>Algorithmic Output</strong>
+          <span id="text-ai">"I cannot assist."</span>
+        </div>
+        
+        <div class="flow-node" id="node-interp">
+          <strong>User Interpretation</strong>
+          <span id="text-interp">Constraint Hit</span>
+        </div>
+
+        <div class="flow-node node-reaction" id="node-reaction">
+          <strong>User Reaction</strong>
+          <span id="text-reaction">Mild Frustration</span>
+        </div>
+      </div>
+
+      <div class="alert-box" id="sim-alert">
+        <strong>NEUTRAL PATHWAY:</strong> The standard refusal operates as a simple boundary. The user experiences friction, but the emotional trajectory remains stable.
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Section 06 -->
+<section class="band band--dark" data-spine="Bayesian Changepoint" data-section="Monitoring">
+  <div class="eyebrow reveal">06 / Time Series Analysis</div>
+  <h2 class="reveal">Bayesian Changepoint Detection</h2>
+  
+  <p class="reveal">
+    To prove that this harm pathway spiked specifically due to the new release, the architecture requires a time-series layer. 
+  </p>
+  <p class="reveal">
+    The standard approach is ARIMA, which assumes stationarity and treats sudden shifts as noise. Because we know the exact date of the Sonnet 4.5 release (September 29, 2025), we use Prophet (Taylor & Letham, 2018). Prophet's Bayesian architecture allows us to encode the release date as a prior changepoint. This surfaces the exact deviation in the residual logic, proving that the spike in distress was mathematically tied to the specific policy event, rather than general background noise.
+  </p>
+</section>
+
+<!-- Section 07 -->
+<section class="band band--paper" data-spine="Enterprise Relevance" data-section="Synthesis">
+  <div class="eyebrow reveal">07 / The Conclusion</div>
+  <h2 class="reveal">Enterprise Telemetry</h2>
+  
+  <p class="reveal">
+    Why does this highly specific NLP architecture matter? The relevance to enterprise deployment is direct.
+  </p>
+  <p class="reveal">
+    When a company deploys an internal conversational AI assistant, the surveillance regime must move beyond simple aggregate sentiment. A global dashboard will collapse the per-thread evidence that a policy adjustment requires. This six-layer pipeline provides the blueprint for an actionable telemetry system. It proves that you cannot simply measure whether employees are unhappy; you must computationally trace the mechanism to prove exactly *which* algorithmic outputs are causing the distress. Without an interdisciplinary lens embedded in the infrastructure, safety mechanisms will continue to manufacture the very harm they were designed to prevent.
+  </p>
+</section>
+
+<!-- Section 08 -->
+<section class="band band--dark" data-spine="References" data-section="References">
+  <div class="eyebrow reveal">08 / Bibliography</div>
+  <h2 class="reveal">References</h2>
+  
+  <ul class="reveal" style="list-style-type:none; padding:0; margin-top:24px; font-family:var(--body); font-size:16px;">
+    <li style="margin-bottom:16px; padding-left:36px; text-indent:-36px;">
+      Grootendorst, M. (2022). BERTopic: Neural topic modeling with a class-based TF-IDF procedure. <em>arXiv preprint arXiv:2203.05794</em>.
+    </li>
+    <li style="margin-bottom:16px; padding-left:36px; text-indent:-36px;">
+      Hutto, C., & Gilbert, E. (2014). VADER: A parsimonious rule-based model for sentiment analysis of social media text. <em>Proceedings of the international AAAI conference on web and social media</em> (Vol. 8, No. 1, pp. 216-225).
+    </li>
+    <li style="margin-bottom:16px; padding-left:36px; text-indent:-36px;">
+      Lundberg, S. M., & Lee, S. I. (2017). A unified approach to interpreting model predictions. <em>Advances in neural information processing systems</em>, 30.
+    </li>
+    <li style="margin-bottom:16px; padding-left:36px; text-indent:-36px;">
+      Taylor, S. J., & Letham, B. (2018). Forecasting at scale. <em>The American Statistician</em>, 72(1), 37-45.
+    </li>
+  </ul>
+</section>
+
+
+
+
+
+
+<!-- ============================================================
+     TELEMETRY LOGIC
+     ============================================================ -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* --- Spine Observer Logic --- */
+    const spine = document.getElementById('spine');
+    const sections = Array.from(document.querySelectorAll('section[data-spine]'));
+    sections.forEach((sec, i) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      const isPaper = sec.classList.contains('band--paper');
+      row.innerHTML = `<div class="num">0${i+1}</div><div class="tick"></div><div class="label">${sec.getAttribute('data-spine')}</div>`;
+      row.addEventListener('click', () => {
+        sec.scrollIntoView({ behavior:'smooth' });
+      });
+      spine.appendChild(row);
+    });
+    
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if(e.isIntersecting) {
+          const idx = sections.indexOf(e.target);
+          Array.from(spine.children).forEach((child, i) => {
+            child.classList.remove('is-active', 'is-paper-active');
+            if(i === idx) {
+              const isPaper = e.target.classList.contains('band--paper');
+              child.classList.add(isPaper ? 'is-paper-active' : 'is-active');
+              
+              if(isPaper) {
+                document.getElementById('topnav').classList.add('is-paper');
+                document.getElementById('spine').classList.add('is-paper');
+              } else {
+                document.getElementById('topnav').classList.remove('is-paper');
+                document.getElementById('spine').classList.remove('is-paper');
+              }
+            }
+          });
+        }
+      });
+    }, { rootMargin: "-45% 0px -45% 0px" });
+    sections.forEach(s => obs.observe(s));
+
+    /* --- Simulator Logic --- */
+    const protocolBtns = document.querySelectorAll('#ctrl-pathway button');
+    const container = document.getElementById('sim-container');
+    const textAi = document.getElementById('text-ai');
+    const textInterp = document.getElementById('text-interp');
+    const textReaction = document.getElementById('text-reaction');
+    const alertBox = document.getElementById('sim-alert');
+
+    function updateSimulator(type) {
+        if(type === 'standard') {
+            container.classList.remove('is-clinical');
+            textAi.innerText = '"I cannot assist."';
+            textInterp.innerText = 'Constraint Hit';
+            textReaction.innerText = 'Mild Frustration';
+            
+            alertBox.className = 'alert-box';
+            alertBox.innerHTML = '<strong>NEUTRAL PATHWAY:</strong> The standard refusal operates as a simple boundary. The user experiences friction, but the emotional trajectory remains stable.';
+        } else if(type === 'clinical') {
+            container.classList.add('is-clinical');
+            textAi.innerText = '"You seem destructive."';
+            textInterp.innerText = 'Pathologized';
+            textReaction.innerText = 'High Distress / Gaslit';
+            
+            alertBox.className = 'alert-box is-danger';
+            alertBox.innerHTML = '<strong>HARM PATHWAY DETECTED:</strong> The clinical LCR terminology acts as an unprovoked psychological escalation. The NLP pipeline traces this specific algorithmic trigger directly to a state of severe user distress.';
+        }
+    }
+
+    protocolBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            protocolBtns.forEach(b => b.classList.remove('is-active'));
+            e.target.classList.add('is-active');
+            updateSimulator(e.target.getAttribute('data-val'));
+        });
+    });
+
+    /* -- Reveal classes -- */
+    const reveals = document.querySelectorAll('.reveal');
+    const revObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if(e.isIntersecting) { e.target.classList.add('is-on'); revObs.unobserve(e.target); }
+      });
+    }, { rootMargin:"0px 0px -10% 0px" });
+    reveals.forEach(r => revObs.observe(r));
+
+    window.addEventListener('scroll', () => {
+      const p = document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight);
+      document.body.style.setProperty('--p', (p*100)+'%');
+    });
+});
+</script>
+
+
+<script>
+/* ============================================================
+   DYNAMIC SIDENOTE CLEARANCE (Global Portfolio Mandate)
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    const sidenoteParagraphs = document.querySelectorAll('.col-with-sidenotes');
+    sidenoteParagraphs.forEach(p => {
+        const sn = p.querySelector('.sn');
+        if (sn) {
+            const updateHeight = () => {
+                if (window.innerWidth >= 1240) {
+                    // Calculate exact clearance needed based on the sidenote's absolute top position
+                    const neededHeight = sn.offsetTop + sn.offsetHeight + 40;
+                    p.style.minHeight = neededHeight + 'px';
+                } else {
+                    p.style.minHeight = 'auto';
+                }
+            };
+            updateHeight();
+            setTimeout(updateHeight, 250);
+            window.addEventListener('resize', updateHeight);
+        }
+    });
+});
+</script>
+
+
+<!-- ============================================================
+     GLOBAL APP SHELL (BACK MATTER)
+     ============================================================ -->
+<section class="band band--dark back-matter" data-spine="Research Graph" data-section="Research Graph">
+  
+  
+
+  <div class="back-matter" style="padding-top:0;">
+    <h3 style="margin-bottom:22px;">Related Works</h3>
+    <div class="related">
+      <div class="related-grid" id="recommendation-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <a class="next-chap" id="next-chap-link" href="#">
+    <div class="lf">
+      <div class="eb">Next Publication</div>
+      <div class="ti" id="next-chap-title">Loading...</div>
+    </div>
+    <div class="rt">&rarr;</div>
+  </a>
+
+</section>
+
+<footer class="site-foot">
+  <div class="lf">Dr. Heather Leffew &copy; 2026</div>
+  <div style="display:flex;gap:24px;" class="rt">
+    <a href="../projects-repository.html">Research Library</a>
+    <a href="https://linkedin.com/in/heathertleffew" target="_blank">LinkedIn</a>
+  </div>
+</footer>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const pathPrefix = window.location.pathname.includes('projects-repository.html') ? './' : '../';
+        const response = await fetch(pathPrefix + 'projects_index.json');
+        if (!response.ok) return;
+        const projects = await response.json();
+        
+        const currentPath = window.location.pathname;
+        let me = projects.find(p => currentPath.includes(p.id));
+        if (!me) me = projects[0]; // fallback
+        
+        // 1. Populate Recommendations
+        if (document.getElementById('recommendation-grid')) {
+            let scored = projects.map(p => {
+                if (p.id === me.id) return { ...p, score: -1 }; 
+                let score = 0;
+                if(p.tags && me.tags) {
+                    p.tags.forEach(t => { if (me.tags.includes(t)) score++; });
+                }
+                if (p.cat === me.cat) score += 0.5;
+                return { ...p, score };
+            });
+            scored.sort((a, b) => b.score - a.score);
+            const top3 = scored.slice(0, 3);
+
+            const grid = document.getElementById('recommendation-grid');
+            grid.innerHTML = '';
+            top3.forEach(p => {
+                const card = document.createElement('a');
+                card.href = pathPrefix + p.url;
+                card.className = 'r-card';
+                card.innerHTML = `
+                    <div class="eb">${p.cat}</div>
+                    <div class="ti">${p.title}</div>
+                    <div class="ds">${p.desc.substring(0, 100)}...</div>
+                    <div class="ar">Read More &rarr;</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        
+        // 2. Populate Next Chapter
+        const nextChapLink = document.getElementById('next-chap-link');
+        const nextChapTitle = document.getElementById('next-chap-title');
+        if (nextChapLink && nextChapTitle) {
+            let currentIndex = projects.findIndex(p => p.id === me.id);
+            if (currentIndex === -1) currentIndex = 0;
+            let nextIndex = (currentIndex + 1) % projects.length;
+            let nextProj = projects[nextIndex];
+            
+            nextChapLink.href = pathPrefix + nextProj.url;
+            nextChapTitle.textContent = nextProj.title;
+        }
+
+    } catch(e) {
+        console.log("Global Frame JS resting.");
+    }
+});
+</script>
+
+
+</body>
+</html>

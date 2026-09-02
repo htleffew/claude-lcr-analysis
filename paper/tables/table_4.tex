@@ -1,0 +1,20 @@
+\begin{table}[!htbp]
+\centering
+\caption{Per-1{,}000-token rates of four vocabulary categories across the four subreddits.}
+\label{tab:vocab_rates}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Category} & \textbf{r/ClaudeAI} & \textbf{r/claudexplorers} & \textbf{r/ClaudeCode} & \textbf{r/Anthropic} \\
+\midrule
+Clinical-language & 3.86 & 6.98 & 1.69 & 3.96 \\
+Mechanism-discussion & 26.01 & 33.45 & 21.87 & 29.33 \\
+User-reaction & 0.00 & 0.00 & 0.00 & 1.20 \\
+Technical-product & 31.92 & 8.19 & 55.31 & 28.58 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.5em}
+\raggedright
+\textit{Note.} Rates are computed on the stops-on, lemmatized token stream for each subreddit stratum. Each cell sums component-term counts for the category. Clinical-language: psychosis, dissociation, manic, episode, professional, therapist, mental. Mechanism-discussion: reminder, conversation, reality, system, prompt, LCR. User-reaction: gaslighting, gaslit, condescending, infantilizing, invalidating. Technical-product: code, file, agent, context, build.
+\end{table}

@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.key
+credentials.json
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Working / intermediate files
+*.log
+lcr_scrape_log.txt
+data/lcr_posts_*.csv
+logs/
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/*.bbl
+paper/*.blg
+paper/*.synctex.gz
+
+# OS junk
+.DS_Store
+Thumbs.db
+bertopic_log.txt
+
+# Project-internal artifacts (not part of the public repo)
+.project/
+notebooks/
+archive/
+AGENTS.md
+CLAUDE.md
+.harness/
+
+paper/leffew_2026_lcr_preprint.md
+ 
+# recode dashboard working buffer: hub autosave blob; the record is the FILLED.csv 
+deliverables/hand_coding/recode_2026-06/recode_state_autosave.json 
+deliverables/hand_coding/recode_2026-06/recode_state_autosave.json.prev
+# graphify AST cache: machine-local, content-hash keyed, regenerable
+graphify-out/cache/
